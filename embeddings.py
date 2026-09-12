@@ -21,6 +21,7 @@ for s in sentences:
     print(f"'{s[:40]}...' -> dim={len(emb)}, first 5 values: {emb[:5]}")
 
 vectors = np.array(vectors)
+
 #manual cosine anlysis 
 def manual_cosine(a, b):
     return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
@@ -36,3 +37,7 @@ sim_matrix = cosine_similarity(vectors)
 print("\nFull similarity matrix (sklearn):")
 np.set_printoptions(precision=3, suppress=True)
 print(sim_matrix)
+
+#QUESTION: If I embed my question and embed  100 chunks of a document, how do I find which chunks are relevant?
+
+#ANSWER: Embed the question the same way (same model), compute cosine similarity between the question's vector and each of the 100 chunk vectors, sort by score descending, take the top-k. That's the entire retrieval step in RAG
