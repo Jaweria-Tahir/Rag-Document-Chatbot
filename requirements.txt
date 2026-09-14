@@ -1,0 +1,7 @@
+# git add .
+# git commit -m "describe what you changed"
+# git push origin main
+
+
+# if push fails then pull---agian push:
+# git pull origin main --rebase
