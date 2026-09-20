@@ -1,19 +1,26 @@
-from langchain_community.vectorstores import PGVector
+import os
+from langchain_postgres import PGVector
+from dotenv import load_dotenv
+import hashlib
 
-CONNECTION_STRING = "postgresql+psycopg2://postgres:jiyajiya1234@localhost:5432/ragdb"
+load_dotenv()
+CONNECTION_STRING = f"postgresql+psycopg2://postgres:{os.getenv('DB_PASSWORD')}@localhost:5432/ragdb"
+
+def make_chunk_id(chunk):
+    content = chunk.page_content + chunk.metadata.get("source", "")
+    return hashlib.md5(content.encode("utf-8")).hexdigest()
+
 
 def build_vectorstore(chunks, embeddings):
-    # Wipe any existing collection with this name first
-    #doing this coz it caused the suplication of chunks when i asked a query
-    PGVector(
-        embedding_function=embeddings,
-        connection_string=CONNECTION_STRING,
-        collection_name="stage0_docs",
-    ).delete_collection()
+    ids = [make_chunk_id(c) for c in chunks]
 
-    return PGVector.from_documents(
-        documents=chunks,
-        embedding=embeddings,
-        connection_string=CONNECTION_STRING,
+    vectorstore = PGVector(
+        embeddings=embeddings,
+        connection=CONNECTION_STRING,
         collection_name="stage0_docs",
+        use_jsonb=True,
     )
+
+    vectorstore.add_documents(documents=chunks, ids=ids)
+
+    return vectorstore
