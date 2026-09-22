@@ -23,7 +23,7 @@ if uploaded_files:
     # step 3: embeddings & making vector store / external knowledge base
     #New files → embed + store → remember vectorstore → reuse it without rebuilding every time.
     if "last_uploaded_names" not in st.session_state or st.session_state.last_uploaded_names != [u.name for u in uploaded_files]:
-        with st.spinner("Embedding chunks and storing in Postgres..."):
+        with st.spinner("Embedding chunks and storing in Postgres..."):#spinner: loading spinner animation with your messag;so UI doesnot look frozen
             embeddings = get_embeddings()
             vectorstore = build_vectorstore(all_chunks, embeddings)
         st.session_state.vectorstore = vectorstore #session_state lets Streamlit remember something between interactions/reruns.
@@ -47,16 +47,22 @@ if uploaded_files:
 
     st.subheader("Ask a question (with LLM answer)")
     query = st.text_input("Your question")
-
+#step 5: Conversational Memory swap RetrievalQA
     if query:
         with st.spinner("Thinking..."):
-            result = qa_chain.invoke({"query": query})
+            # add this temporarily right before qa_chain.invoke
+            st.write("DEBUG - chat history:", st.session_state.get("chat_history"))
+            result = qa_chain.invoke({"question": query})#ConversationalRetrievalChain take key quetsion instaed of query
 
         st.write("### Answer")
-        st.write(result["result"])
+        st.write(result["answer"])
 
         st.write("### Source chunks used")
         for i, doc in enumerate(result["source_documents"]):
             st.write(f"**Source {i+1}** — {doc.metadata.get('source')}, page {doc.metadata.get('page')}")
             st.text(doc.page_content)
             st.divider()
+            
+            
+#Limitation of Model I used previously 
+#The model (qwen2.5:1.5b) is very small (1.5B params) — smaller models are more prone to blending/hallucinating facts, especially with dense tabular data like calendar
