@@ -1,6 +1,15 @@
 # Rag-Document-Chatbot
 A RAG-powered Document Q&amp;A web application that lets users upload PDFs or Markdown files and ask questions with source-based answers and conversational memory.
 
+## Pipeline
+
+* **Document loading** → Loads PDFs/Markdown files into the system.
+* **Chunking** → Breaks large documents into smaller text pieces.
+* **Embeddings** → Converts each chunk into numbers representing its meaning.
+* **Vector database** → Stores those embeddings for searching.
+* **Retrieval** → Finds the most relevant chunks for the user's question.
+* **LLM generation** → Sends the relevant chunks to the LLM, which generates the final answer.
+
 ## Features
 
 - Upload multiple PDF/Markdown documents
