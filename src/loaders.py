@@ -28,6 +28,8 @@ def load_document(uploaded_file):
     # fix metadata so it's not the temp file name
     for doc in docs:
         doc.metadata["source"] = original_name
+        # NEW: strip NUL characters and any other problematic control chars
+        doc.page_content = doc.page_content.replace("\x00", "")
 
     os.remove(tmp_path)
     return docs
